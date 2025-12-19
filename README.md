@@ -52,64 +52,98 @@ pip install -r requirements.txt
 
 4. Create a `.env` file in the project root and add any required keys (example):
 
-```
-OPENAI_API_KEY="your-openai-key"
-PINECONE_API_KEY="your-pinecone-key"
-PINECONE_ENVIRONMENT="us-east1-gcp"
-```
+# Medical Chatbot (Medibot)
 
-Note: This repo currently does not include the code that calls these services. Add or enable the relevant modules before attempting to use them.
+A small Flask-based medical chatbot web app using a retrieval-augmented generation (RAG) pattern. This repository contains a working `app.py` Flask server plus a simple web UI in `templates/index.html` and `static/style.css`.
 
-## Usage (what to do next)
+## Status
+- Core app: `app.py` is implemented and starts a Flask server.
+- Frontend: `templates/index.html` + `static/style.css` provide a dark-themed UI with message bubbles, a professional "Dr. Medibot" header and Enter-to-submit behavior.
 
-- The repository currently lacks an implemented `app.py` and the core scripts to build/store embeddings. To run a web app or CLI you should implement the main entry in `app.py` (Flask/FastAPI) and the vector store utilities (e.g., `store_index.py`) in the codebase.
-- Suggested minimal flow you can implement:
-	1. Create `scripts/store_index.py` that builds embeddings and uploads them to Pinecone (or a local FAISS index).
-	2. Implement `app.py` to load the index and expose a chat API (Flask or FastAPI).
-	3. Add a simple HTML/JS frontend or use curl to test the API.
+## Quick links
+- Server entry: `app.py`
+- Frontend template: `templates/index.html`
+- Styles: `static/style.css`
+- Python package code: `src/`
 
-Example (placeholder) command that will work once those scripts exist:
+## Prerequisites
+- Python 3.10+
+- Git
+- (Optional) Conda
+- Required API keys and services used by the embedding / vector store (for example Pinecone, GROQ/OpenAI). Place secret keys in a `.env` file.
+
+## Setup (PowerShell)
+1. Clone the repository:
 
 ```powershell
-python scripts/store_index.py
-python app.py
-# then open http://localhost:5000
+git clone https://github.com/YasasChamod/Medical-Chatbot.git
+cd "Medical-Chatbot"
 ```
 
-## Project Structure
+2. Create and activate a virtual environment (venv) or use conda:
 
-- `app.py` — application entrypoint (currently empty)
-- `requirements.txt` — Python dependencies
-- `src/` — package folder (place your modules here)
-	- `src/helper.py` — helper utilities (placeholder)
-	- `src/prompt.py` — prompt templates and prompt-building logic (placeholder)
-- `research/` — notebooks and experiments
+Using venv:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+Using conda (optional):
+
+```powershell
+conda create -n medibot python=3.10 -y
+conda activate medibot
+```
+
+3. Install dependencies:
+
+```powershell
+pip install -r requirements.txt
+```
+
+4. Create a `.env` file in the project root containing any required keys, e.g.:
+
+```env
+OPENAI_API_KEY="your-openai-key"
+PINECONE_API_KEY="your-pinecone-key"
+PINECONE_ENVIRONMENT="your-pinecone-environment"
+```
+
+## Running the app locally
+1. Ensure your environment is active and required keys are present.
+2. Start the app:
+
+```powershell
+python app.py
+```
+
+3. Open http://127.0.0.1:5000 in your browser.
+
+### Notes about embeddings and vector store
+- The Flask app expects the embedding and vector store pieces (see `src/helper.py` and `store_index.py`) to be configured for your chosen provider (Pinecone, FAISS, etc.). If you don't yet have embeddings or a Pinecone index, implement `store_index.py` or modify `src/helper.py` to use a local index.
+
+## Frontend features (what changed)
+- Dark theme with improved readability: `static/style.css`.
+- Professional header: the UI now shows a `Dr. Medibot` header with an avatar (`templates/index.html`).
+- Message bubbles with avatars and sender labels instead of plain text messages.
+- Enter-to-submit: pressing Enter sends the message (clicking Ask still works). To change this behavior to support Shift+Enter for newlines, see the note below.
+
+## Customization tips
+- Change accent/button color: edit the `background` value for the `button` selector and `.message-row.bot .message` in `static/style.css`.
+- Use an image avatar: replace the `.header .avatar` content in `templates/index.html` with an `<img src="/static/doctor.png" alt="doctor"/>` and add the image to `static/`.
+- Make Enter create newlines (Shift+Enter to submit): modify the keydown handler in `templates/index.html` (I can do this for you).
 
 ## Development notes
+- `app.py` runs Flask in debug mode when executed directly. For production, use a WSGI server (Gunicorn/Uvicorn) and set debug=False.
+- Keep secrets out of source control and prefer environment variables or a secure secrets store in deployment.
 
-- Use `src/` for library code and keep `app.py` minimal (web server startup + wiring).
-- Keep secrets out of source control. Use `.env` + `python-dotenv` or environment variables in CI.
-- Add tests when you implement behavior; consider a `tests/` folder and `pytest`.
-
-## Deployment notes (optional)
-
-This section contains suggestions only — there is no deployment automation in the repo yet.
-
-- Containerize with a `Dockerfile` and push to ECR for AWS deployment.
-- Use GitHub Actions for CI/CD and store secrets in repository Actions secrets.
-
-## Contributing
-
-If you'd like me to implement the missing scripts and make the app runnable, tell me which runtime you prefer (Flask or FastAPI) and whether you want Pinecone or a local FAISS index — I can then:
-
-- implement `scripts/store_index.py`
-- implement `app.py` and a simple web UI
-- add step-by-step usage examples and tests
+## Next steps I can help with
+- Implement `store_index.py` to build embeddings and populate a Pinecone or FAISS index.
+- Add Shift+Enter multiline input behavior.
+- Swap emoji avatars for images and tune styling (colors, spacing).
 
 ## License
-
 See `LICENSE` in the repository root.
 
-## Contact
-
-If you want changes to the README or want me to implement the runnable parts, reply with the preferred web framework and vector store.
+If you want, I can update the README further with screenshots or add a short GIF demonstrating Enter-to-submit and message bubbles.

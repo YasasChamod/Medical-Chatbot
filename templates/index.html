@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medibot 🩺</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="header">
+        <div class="avatar">👩‍⚕️</div>
+        <div>
+            <div class="title">Dr. Medibot</div>
+            <div class="subtitle">Your virtual medical assistant</div>
+        </div>
+    </div>
+
+    <div id="chat-box"></div>
+
+    <div class="input-area">
+        <input type="text" id="question" placeholder="Ask a medical question..." autocomplete="off" autofocus />
+        <button onclick="askQuestion()">Ask</button>
+    </div>
+</div>
+
+<script>
+function askQuestion() {
+    const questionInput = document.getElementById("question");
+    const question = questionInput.value.trim();
+    if (!question) return;
+
+    addMessage("You", question);
+    questionInput.value = "";
+
+    fetch("/ask", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ question: question })
+    })
+    .then(res => res.json())
+    .then(data => {
+        addMessage("Medibot", data.answer);
+    });
+}
+
+function addMessage(sender, message) {
+    const chatBox = document.getElementById("chat-box");
+
+    const row = document.createElement('div');
+    row.className = `message-row ${sender === 'You' ? 'user' : 'bot'}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.textContent = sender === 'You' ? 'You' : 'Dr';
+
+    const msg = document.createElement('div');
+    msg.className = 'message';
+    const senderLabel = document.createElement('span');
+    senderLabel.className = 'sender';
+    senderLabel.textContent = sender === 'You' ? 'You' : 'Dr. Medibot';
+    const text = document.createElement('div');
+    text.className = 'message-text';
+    text.textContent = message;
+
+    msg.appendChild(senderLabel);
+    msg.appendChild(text);
+
+    if (sender === 'You') {
+        row.appendChild(msg);
+        row.appendChild(avatar);
+    } else {
+        row.appendChild(avatar);
+        row.appendChild(msg);
+    }
+
+    chatBox.appendChild(row);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// submit on Enter key
+const questionInput = document.getElementById('question');
+questionInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        askQuestion();
+    }
+});
+</script>
+
+</body>
+</html>
